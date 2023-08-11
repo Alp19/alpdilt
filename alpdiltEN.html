@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alp Domain Info Lookup Tool</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin-top: 50px;
+    background-color: black; /* Arka plan rengini siyah yapar */
+    color: white; /* Yazı rengini beyaz yapar */
+  }
+  .rainbow-text {
+            font-size: 36px;
+            background-image: linear-gradient(to right, #ff0000, #ff8000, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
+            -webkit-background-clip: text;
+            color: transparent;
+            margin-bottom: 20px;
+        }
+</style>
+</head>
+<body>
+    <h1 class="rainbow-text">Alp Domain Info Lookup Tool</h1>
+    <form id="lookupForm">
+        <label for="lookupType">Select an option:</label>
+        <select id="lookupType">
+            <option value="single">Single Lookup</option>
+            <option value="bulk">Bulk Lookup</option>
+        </select>
+        <br><br>
+        
+        <div id="singleLookup">
+            <label for="domain">Enter a domain name:</label>
+            <input type="text" id="domain" placeholder="example.com">
+            <br><br>
+        </div>
+        
+        <div id="bulkLookup" style="display: none;">
+            <label for="file">Upload a txt file for bulk lookup:</label>
+            <input type="file" id="file">
+            <br><br>
+        </div>
+        
+        <button type="button" onclick="performLookup()">Perform Lookup</button>
+    </form>
+    
+    <div id="result" style="display: none;">
+        <h2>Whois information:</h2>
+        <pre id="whoisInfo"></pre>
+        
+        <button type="button" onclick="saveToFile()">Save to File</button>
+    </div>
+    
+    <script>
+        function performLookup() {
+            const lookupType = document.getElementById("lookupType").value;
+            const domain = document.getElementById("domain").value;
+            const file = document.getElementById("file").files[0];
+            
+            let url;
+            if (lookupType === "single") {
+                url = `lookup.php?type=single&domain=${domain}`;
+            } else {
+                url = `lookup.php?type=bulk`;
+            }
+            
+            fetch(url)
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById("whoisInfo").textContent = data;
+                    document.getElementById("result").style.display = "block";
+                });
+        }
+        
+        function saveToFile() {
+            const whoisInfo = document.getElementById("whoisInfo").textContent;
+            const blob = new Blob([whoisInfo], { type: "text/plain" });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = "alpdilt_multireport.txt";
+            a.click();
+        }
+        
+        document.getElementById("lookupType").addEventListener("change", function() {
+            const singleLookup = document.getElementById("singleLookup");
+            const bulkLookup = document.getElementById("bulkLookup");
+            
+            if (this.value === "single") {
+                singleLookup.style.display = "block";
+                bulkLookup.style.display = "none";
+            } else {
+                singleLookup.style.display = "none";
+                bulkLookup.style.display = "block";
+            }
+        });
+    </script>
+</body>
+</html>
